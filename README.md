@@ -1,5 +1,7 @@
 # Etsy API Mock Server
 
+> **Disclaimer:** This is **not** an official Etsy product and is not affiliated with, endorsed by, or sponsored by Etsy, Inc. This is an independent, open-source utility built to help developers test their Etsy integrations locally — without making calls to the real Etsy API. If you're building an app that uses the [Etsy Open API v3](https://developers.etsy.com/documentation/), this mock server lets you run automated E2E tests, QA workflows, and development loops entirely offline.
+
 A full mock implementation of the [Etsy Open API v3](https://developers.etsy.com/documentation/) in Go. Designed for E2E tests and human quality testing without touching the real Etsy API.
 
 ## Quick Start
