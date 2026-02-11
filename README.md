@@ -93,98 +93,124 @@ The server starts pre-loaded with realistic test data:
 
 ## Implemented Endpoints
 
+### OAuth2 & Auth
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| POST | `/v3/public/oauth/token` | — | Token exchange & refresh (PKCE) |
+| POST | `/v3/application/scopes` | OAuth | Check token scopes |
+| GET | `/v3/application/users/me` | OAuth | Get authenticated user |
+| GET | `/v3/application/openapi-ping` | — | API connectivity check |
+
 ### Listings
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/listings/active` | Search all active listings |
-| GET | `/v3/application/listings/{listing_id}` | Get a listing |
-| DELETE | `/v3/application/listings/{listing_id}` | Delete a listing |
-| GET | `/v3/application/listings/{listing_id}/inventory` | Get listing inventory |
-| GET | `/v3/application/listings/{listing_id}/reviews` | Get listing reviews |
-| POST | `/v3/application/shops/{shop_id}/listings` | Create a draft listing |
-| GET | `/v3/application/shops/{shop_id}/listings` | List shop listings |
-| GET | `/v3/application/shops/{shop_id}/listings/active` | List active shop listings |
-| PUT/PATCH | `/v3/application/shops/{shop_id}/listings/{listing_id}` | Update a listing |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/listings/active` | api_key | Search all active listings |
+| GET | `/v3/application/listings/batch?listing_ids=...` | api_key | Get multiple listings |
+| GET | `/v3/application/listings/{id}` | api_key | Get a listing |
+| DELETE | `/v3/application/listings/{id}` | listings_d | Delete a listing |
+| GET | `/v3/application/listings/{id}/inventory` | api_key | Get listing inventory |
+| GET | `/v3/application/listings/{id}/reviews` | api_key | Get listing reviews |
+| GET | `/v3/application/listings/{id}/personalization` | api_key | Get personalization settings |
+| GET | `/v3/application/listings/{id}/videos` | api_key | List videos |
+| GET | `/v3/application/listings/{id}/videos/{vid}` | api_key | Get video |
+| GET | `/v3/application/listings/{id}/images` | api_key | List images |
+| GET | `/v3/application/listings/{id}/products/{pid}/offerings/{oid}` | api_key | Get offering |
+| POST | `/v3/application/shops/{sid}/listings` | listings_w | Create a draft listing |
+| GET | `/v3/application/shops/{sid}/listings` | listings_r | List shop listings |
+| GET | `/v3/application/shops/{sid}/listings/active` | api_key | List active shop listings |
+| GET | `/v3/application/shops/{sid}/listings/featured` | api_key | List featured listings |
+| PUT/PATCH | `/v3/application/shops/{sid}/listings/{id}` | listings_w | Update a listing |
 
-### Listing Images
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/listings/{listing_id}/images` | List images |
-| POST | `/v3/application/shops/{shop_id}/listings/{listing_id}/images` | Upload image |
-| DELETE | `/v3/application/shops/{shop_id}/listings/{listing_id}/images/{image_id}` | Delete image |
-
-### Listing Files (Digital)
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/listings/{listing_id}/files` | List files |
-| GET | `/v3/application/shops/{shop_id}/listings/{listing_id}/files/{file_id}` | Get file |
-| POST | `/v3/application/shops/{shop_id}/listings/{listing_id}/files` | Upload file |
-| DELETE | `/v3/application/shops/{shop_id}/listings/{listing_id}/files/{file_id}` | Delete file |
+### Listing Sub-resources (under shops)
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET/POST | `.../listings/{id}/images` | api_key/listings_w | List/upload images |
+| DELETE | `.../listings/{id}/images/{iid}` | listings_w | Delete image |
+| GET/POST | `.../listings/{id}/files` | listings_r/listings_w | List/upload files |
+| GET/DELETE | `.../listings/{id}/files/{fid}` | listings_r/listings_w | Get/delete file |
+| GET/PUT | `.../listings/{id}/personalization` | api_key/listings_w | Get/update personalization |
+| GET/POST | `.../listings/{id}/videos` | api_key/listings_w | List/upload videos |
+| GET/DELETE | `.../listings/{id}/videos/{vid}` | api_key/listings_w | Get/delete video |
+| GET/PUT | `.../listings/{id}/translations/{lang}` | api_key/listings_w | Get/update translation |
+| GET/POST | `.../listings/{id}/variation-images` | api_key/listings_w | Get/update variation images |
+| GET | `.../listings/{id}/properties` | api_key | List properties |
+| GET | `.../listings/{id}/inventory` | api_key | Get inventory |
 
 ### Shops
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}` | Get shop |
-| GET | `/v3/application/shops?shop_name=xxx` | Find shop by name |
-| PUT | `/v3/application/shops/{shop_id}` | Update shop |
-| GET | `/v3/application/shops/{shop_id}/sections` | List sections |
-| POST | `/v3/application/shops/{shop_id}/sections` | Create section |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/shops/{id}` | api_key | Get shop |
+| GET | `/v3/application/shops?shop_name=xxx` | api_key | Find shop by name |
+| PUT | `/v3/application/shops/{id}` | shops_w | Update shop |
+| GET | `/v3/application/shops/{id}/sections` | api_key | List sections |
+| GET | `/v3/application/shops/{id}/sections/{sid}` | api_key | Get section |
+| POST | `/v3/application/shops/{id}/sections` | shops_w | Create section |
+| GET | `/v3/application/shops/{id}/shop-sections/listings` | api_key | Listings by section |
+| GET/PUT | `/v3/application/shops/{id}/holiday-preferences` | shops_r/shops_w | Vacation settings |
+| GET | `/v3/application/shops/{id}/production-partners` | shops_r | Production partners |
+| GET | `/v3/application/shops/{id}/readiness-state-definitions` | shops_r | Processing profiles |
 
 ### Return Policies
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/return-policies` | List return policies |
-| GET | `/v3/application/shops/{shop_id}/return-policies/{id}` | Get return policy |
-| POST | `/v3/application/shops/{shop_id}/return-policies` | Create return policy |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/shops/{id}/return-policies` | api_key | List return policies |
+| GET | `/v3/application/shops/{id}/return-policies/{pid}` | api_key | Get return policy |
+| POST | `/v3/application/shops/{id}/return-policies` | shops_w | Create return policy |
 
 ### Receipts & Transactions
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/receipts` | List receipts |
-| GET | `/v3/application/shops/{shop_id}/receipts/{receipt_id}` | Get receipt |
-| PUT | `/v3/application/shops/{shop_id}/receipts/{receipt_id}` | Update receipt |
-| GET | `/v3/application/shops/{shop_id}/receipts/{receipt_id}/transactions` | Receipt transactions |
-| GET | `/v3/application/shops/{shop_id}/receipts/{receipt_id}/payments` | Receipt payments |
-| GET | `/v3/application/shops/{shop_id}/transactions` | List shop transactions |
-| GET | `/v3/application/shops/{shop_id}/transactions/{transaction_id}` | Get transaction |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/shops/{id}/receipts` | transactions_r | List receipts |
+| GET | `/v3/application/shops/{id}/receipts/{rid}` | transactions_r | Get receipt |
+| PUT | `/v3/application/shops/{id}/receipts/{rid}` | transactions_w | Update receipt |
+| POST | `/v3/application/shops/{id}/receipts/{rid}/tracking` | transactions_w | Add tracking |
+| GET | `/v3/application/shops/{id}/receipts/{rid}/transactions` | transactions_r | Receipt transactions |
+| GET | `/v3/application/shops/{id}/receipts/{rid}/payments` | transactions_r | Receipt payments |
+| GET | `/v3/application/shops/{id}/transactions` | transactions_r | List shop transactions |
+| GET | `/v3/application/shops/{id}/transactions/{tid}` | transactions_r | Get transaction |
 
 ### Payments & Ledger
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/payments` | List shop payments |
-| GET | `/v3/application/shops/{shop_id}/payment-account/ledger-entries` | Ledger entries |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/shops/{id}/payments` | transactions_r | List shop payments |
+| GET | `/v3/application/shops/{id}/payment-account/ledger-entries` | transactions_r | Ledger entries |
 
 ### Users
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/users/{user_id}` | Get user |
-| GET | `/v3/application/users/{user_id}/addresses` | User addresses |
-| GET | `/v3/application/users/{user_id}/shops` | User's shops |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/users/{id}` | email_r | Get user |
+| GET | `/v3/application/users/{id}/addresses` | address_r | User addresses |
+| DELETE | `/v3/application/users/{id}/addresses/{aid}` | address_r | Delete address |
+| GET | `/v3/application/users/{id}/shops` | api_key | User's shops |
 
-### Shipping Profiles
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/shipping-profiles` | List profiles |
-| GET | `/v3/application/shops/{shop_id}/shipping-profiles/{id}` | Get profile |
-| POST | `/v3/application/shops/{shop_id}/shipping-profiles` | Create profile |
-| DELETE | `/v3/application/shops/{shop_id}/shipping-profiles/{id}` | Delete profile |
+### Shipping
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/shops/{id}/shipping-profiles` | shops_r | List profiles |
+| GET | `/v3/application/shops/{id}/shipping-profiles/{pid}` | shops_r | Get profile |
+| POST | `/v3/application/shops/{id}/shipping-profiles` | shops_w | Create profile |
+| DELETE | `/v3/application/shops/{id}/shipping-profiles/{pid}` | shops_w | Delete profile |
+| GET | `/v3/application/shipping-carriers` | api_key | List shipping carriers |
 
 ### Reviews
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/shops/{shop_id}/reviews` | Shop reviews |
-| GET | `/v3/application/listings/{listing_id}/reviews` | Listing reviews |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/shops/{id}/reviews` | api_key | Shop reviews |
+| GET | `/v3/application/listings/{id}/reviews` | api_key | Listing reviews |
 
 ### Taxonomy
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/v3/application/buyer-taxonomy/nodes` | Full taxonomy tree |
-| GET | `/v3/application/buyer-taxonomy/nodes/{id}/properties` | Taxonomy properties |
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| GET | `/v3/application/buyer-taxonomy/nodes` | api_key | Buyer taxonomy tree |
+| GET | `/v3/application/buyer-taxonomy/nodes/{id}/properties` | api_key | Buyer taxonomy properties |
+| GET | `/v3/application/seller-taxonomy/nodes` | api_key | Seller taxonomy tree |
+| GET | `/v3/application/seller-taxonomy/nodes/{id}/properties` | api_key | Seller taxonomy properties |
 
 ### Utility
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/ping` | Health check |
+| POST | `/admin/reset` | Reset data store |
 
 ## Query Parameters
 
@@ -204,18 +230,34 @@ Shop listings support:
 ## Example Usage
 
 ```bash
-# Search active listings
-curl -H "x-api-key: test" \
+# Public endpoint (API key only)
+curl -H "x-api-key: myapp:mysecret" \
   "http://localhost:8080/v3/application/listings/active?keywords=necklace"
 
-# Create a listing
-curl -X POST -H "x-api-key: test" -H "Content-Type: application/json" \
+# Create a listing (requires OAuth + listings_w scope)
+curl -X POST \
+  -H "x-api-key: myapp:mysecret" \
+  -H "Authorization: Bearer test-token-alice" \
+  -H "Content-Type: application/json" \
   http://localhost:8080/v3/application/shops/5001/listings \
   -d '{"title":"New Item","description":"A thing","quantity":5,"price":19.99,"who_made":"i_did","when_made":"2020_2026","taxonomy_id":1207}'
 
-# Get shop receipts
-curl -H "x-api-key: test" \
+# Get shop receipts (requires OAuth + transactions_r scope)
+curl -H "x-api-key: myapp:mysecret" \
+  -H "Authorization: Bearer test-token-alice" \
   "http://localhost:8080/v3/application/shops/5001/receipts"
+
+# OAuth2 token exchange (PKCE flow)
+curl -X POST http://localhost:8080/v3/public/oauth/token \
+  -d "grant_type=authorization_code&client_id=myapp&code=mock_code_1001&code_verifier=test&redirect_uri=http://localhost"
+
+# Add shipment tracking
+curl -X POST \
+  -H "x-api-key: myapp:mysecret" \
+  -H "Authorization: Bearer test-token-alice" \
+  -H "Content-Type: application/json" \
+  http://localhost:8080/v3/application/shops/5001/receipts/9002/tracking \
+  -d '{"carrier_name":"USPS","tracking_code":"9400111899223100099999"}'
 ```
 
 ## Architecture
@@ -224,18 +266,35 @@ curl -H "x-api-key: test" \
 cmd/server/main.go          — Entry point, flag parsing, middleware chain
 internal/
   models/                   — All Etsy API data types (1:1 with OpenAPI spec)
+    listing.go              — Listings, images, videos, files, inventory
+    shop.go                 — Shop, sections, return policies
+    receipt.go              — Receipts, transactions, shipments, refunds
+    payment.go              — Payments, adjustments, ledger entries
+    user.go                 — Users, addresses
+    review.go               — Reviews
+    shipping.go             — Shipping profiles, destinations, upgrades
+    taxonomy.go             — Buyer/seller taxonomy nodes and properties
+    auth.go                 — OAuth2 token request/response types
+    extras.go               — Personalization, translations, carriers, etc.
+    money.go                — Money type (amount/divisor/currency)
+    responses.go            — Paginated and error response wrappers
   store/store.go            — Thread-safe in-memory data store
-  handlers/                 — HTTP handlers for each endpoint group
-    router.go               — URL routing
-    helpers.go              — JSON encoding, path parsing utilities
+  handlers/
+    router.go               — URL routing (all 60+ endpoints)
+    helpers.go              — JSON encoding, path parsing, scope checking
+    oauth.go                — OAuth2 PKCE token exchange & refresh
     listings.go             — Listing CRUD + images, files, inventory
+    extras.go               — Videos, personalization, translations, carriers, etc.
     shops.go                — Shop, sections, return policies
-    receipts.go             — Receipts, transactions
+    receipts.go             — Receipts, transactions, tracking
     payments.go             — Payments, ledger entries
     users.go                — Users, addresses
     reviews.go              — Reviews
     shipping.go             — Shipping profiles
-    taxonomy.go             — Buyer taxonomy
-  middleware/auth.go        — Auth, CORS, logging, content-type
-  seed/seed.go              — Realistic test data
+    taxonomy.go             — Buyer/seller taxonomy
+  middleware/auth.go        — API key validation, OAuth2 token store,
+                              scope enforcement, rate limit headers,
+                              CORS, logging, content-type
+  seed/seed.go              — Realistic test data (2 shops, 8 listings,
+                              receipts, payments, reviews, taxonomy)
 ```

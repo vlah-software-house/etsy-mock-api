@@ -1,0 +1,9 @@
+{
+  "shops": 5,
+  "listings_per_shop": { "min": 8, "max": 25 },
+  "reviews_per_shop": { "min": 3, "max": 15 },
+  "receipts_per_shop": { "min": 2, "max": 10 },
+  "include_digital_listings": true,
+  "include_personalized_listings": true,
+  "listing_states": ["active", "active", "active", "draft", "sold_out"]
+}

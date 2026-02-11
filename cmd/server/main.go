@@ -16,10 +16,18 @@ func main() {
 	port := flag.Int("port", 8080, "Server port")
 	noAuth := flag.Bool("no-auth", false, "Disable authentication checks")
 	noSeed := flag.Bool("no-seed", false, "Start with empty data store")
+	seedConfig := flag.String("seed-config", "", "Path to JSON seed config for generated content")
 	flag.Parse()
 
 	s := store.New()
-	if !*noSeed {
+	if *seedConfig != "" {
+		cfg, err := seed.LoadConfig(*seedConfig)
+		if err != nil {
+			log.Fatalf("Failed to load seed config: %v", err)
+		}
+		seed.GenerateFromConfig(s, cfg)
+		log.Printf("Generated seed data from %s (%d shops)", *seedConfig, cfg.Shops)
+	} else if !*noSeed {
 		seed.Load(s)
 		log.Println("Seed data loaded")
 	}
