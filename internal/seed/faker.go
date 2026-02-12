@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gabriel/etsy-mock/internal/models"
-	"github.com/gabriel/etsy-mock/internal/store"
+	"github.com/vlah-software-house/etsy-mock-api/internal/models"
+	"github.com/vlah-software-house/etsy-mock-api/internal/store"
 )
 
 // Content pools for realistic Etsy-style data generation.

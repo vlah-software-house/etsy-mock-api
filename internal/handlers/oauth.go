@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gabriel/etsy-mock/internal/middleware"
+	"github.com/vlah-software-house/etsy-mock-api/internal/middleware"
 )
 
 // GET /v3/application/openapi-ping

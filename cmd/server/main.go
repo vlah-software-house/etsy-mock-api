@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gabriel/etsy-mock/internal/handlers"
-	"github.com/gabriel/etsy-mock/internal/middleware"
-	"github.com/gabriel/etsy-mock/internal/seed"
-	"github.com/gabriel/etsy-mock/internal/store"
+	"github.com/vlah-software-house/etsy-mock-api/internal/handlers"
+	"github.com/vlah-software-house/etsy-mock-api/internal/middleware"
+	"github.com/vlah-software-house/etsy-mock-api/internal/seed"
+	"github.com/vlah-software-house/etsy-mock-api/internal/store"
 )
 
 func main() {

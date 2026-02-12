@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gabriel/etsy-mock/internal/models"
+	"github.com/vlah-software-house/etsy-mock-api/internal/models"
 )
 
 // GET /v3/application/shops/{shop_id}/shipping-profiles

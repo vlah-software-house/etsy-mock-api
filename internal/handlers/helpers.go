@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gabriel/etsy-mock/internal/middleware"
-	"github.com/gabriel/etsy-mock/internal/models"
-	"github.com/gabriel/etsy-mock/internal/store"
+	"github.com/vlah-software-house/etsy-mock-api/internal/middleware"
+	"github.com/vlah-software-house/etsy-mock-api/internal/models"
+	"github.com/vlah-software-house/etsy-mock-api/internal/store"
 )
 
 type Handler struct {

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gabriel/etsy-mock/internal/models"
+	"github.com/vlah-software-house/etsy-mock-api/internal/models"
 )
 
 type Store struct {

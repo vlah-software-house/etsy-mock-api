@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gabriel/etsy-mock/internal/models"
+	"github.com/vlah-software-house/etsy-mock-api/internal/models"
 )
 
 // GET /v3/application/listings/{listing_id}/personalization
