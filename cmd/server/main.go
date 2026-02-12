@@ -33,6 +33,7 @@ func main() {
 	}
 
 	tokenStore := middleware.NewTokenStore()
+	keyStore := middleware.NewAPIKeyStore()
 	h := handlers.New(s, tokenStore)
 	mux := http.NewServeMux()
 	h.RegisterRoutes(mux)
@@ -41,7 +42,7 @@ func main() {
 	handler = middleware.JSONContent(handler)
 	handler = middleware.RateLimitHeaders(handler)
 	if !*noAuth {
-		handler = middleware.MockAuth(tokenStore)(handler)
+		handler = middleware.MockAuth(tokenStore, keyStore)(handler)
 	}
 	handler = middleware.CORS(handler)
 	handler = middleware.RequestLogger(handler)
@@ -55,6 +56,8 @@ func main() {
 		log.Println("Authentication: DISABLED")
 	} else {
 		log.Println("Authentication: enabled (x-api-key format: keystring:shared_secret)")
+		log.Println("Pre-seeded API keys: test-key:test-secret, alice-app:alice-secret, bob-app:bob-secret")
+		log.Println("Banned API key: banned-app:banned-secret | Expired: expired-app:expired-secret")
 		log.Println("Pre-seeded OAuth tokens: test-token-alice (user 1001), test-token-bob (user 1002)")
 	}
 

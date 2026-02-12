@@ -18,6 +18,92 @@ const (
 	ContextUserID    contextKey = "user_id"
 )
 
+// APIKeyStatus represents the state of a registered API key.
+type APIKeyStatus int
+
+const (
+	APIKeyValid   APIKeyStatus = iota
+	APIKeyBanned               // App has been revoked/banned by Etsy
+	APIKeyExpired              // API key has expired
+)
+
+// APIKeyEntry represents a registered mock API key.
+type APIKeyEntry struct {
+	Keystring    string
+	SharedSecret string
+	Status       APIKeyStatus
+	Label        string // Human-readable label for logging
+}
+
+// APIKeyStore holds registered API keys. Thread-safe.
+type APIKeyStore struct {
+	mu   sync.RWMutex
+	keys map[string]*APIKeyEntry // keyed by keystring
+}
+
+func NewAPIKeyStore() *APIKeyStore {
+	ks := &APIKeyStore{keys: make(map[string]*APIKeyEntry)}
+
+	// Valid test keys
+	ks.keys["test-key"] = &APIKeyEntry{
+		Keystring: "test-key", SharedSecret: "test-secret",
+		Status: APIKeyValid, Label: "Test App (valid)",
+	}
+	ks.keys["alice-app"] = &APIKeyEntry{
+		Keystring: "alice-app", SharedSecret: "alice-secret",
+		Status: APIKeyValid, Label: "Alice's App (valid)",
+	}
+	ks.keys["bob-app"] = &APIKeyEntry{
+		Keystring: "bob-app", SharedSecret: "bob-secret",
+		Status: APIKeyValid, Label: "Bob's App (valid)",
+	}
+
+	// Banned/revoked app key
+	ks.keys["banned-app"] = &APIKeyEntry{
+		Keystring: "banned-app", SharedSecret: "banned-secret",
+		Status: APIKeyBanned, Label: "Banned App (revoked)",
+	}
+
+	// Expired key
+	ks.keys["expired-app"] = &APIKeyEntry{
+		Keystring: "expired-app", SharedSecret: "expired-secret",
+		Status: APIKeyExpired, Label: "Expired App",
+	}
+
+	return ks
+}
+
+// Validate checks an API key and returns the entry and an error message if invalid.
+func (ks *APIKeyStore) Validate(keystring, sharedSecret string) (*APIKeyEntry, string, int) {
+	ks.mu.RLock()
+	defer ks.mu.RUnlock()
+
+	entry, exists := ks.keys[keystring]
+	if !exists {
+		return nil, "Invalid API key: keystring not recognized", http.StatusUnauthorized
+	}
+
+	if entry.SharedSecret != sharedSecret {
+		return nil, "Invalid shared secret for the provided keystring", http.StatusUnauthorized
+	}
+
+	switch entry.Status {
+	case APIKeyBanned:
+		return nil, "This API key has been revoked or the application has been banned", http.StatusForbidden
+	case APIKeyExpired:
+		return nil, "This API key has expired. Please renew your application credentials", http.StatusUnauthorized
+	}
+
+	return entry, "", 0
+}
+
+// Register adds or updates an API key in the store.
+func (ks *APIKeyStore) Register(entry *APIKeyEntry) {
+	ks.mu.Lock()
+	defer ks.mu.Unlock()
+	ks.keys[entry.Keystring] = entry
+}
+
 // TokenEntry represents a stored mock OAuth token.
 type TokenEntry struct {
 	AccessToken  string
@@ -85,7 +171,8 @@ func AllScopes() []string {
 }
 
 // MockAuth validates API key (keystring:shared_secret format) and optional OAuth bearer token.
-func MockAuth(tokenStore *TokenStore) func(http.Handler) http.Handler {
+// It checks registered API keys for validity, bans, and expiration.
+func MockAuth(tokenStore *TokenStore, keyStore *APIKeyStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Skip auth for public OAuth endpoints and ping
@@ -108,6 +195,13 @@ func MockAuth(tokenStore *TokenStore) func(http.Handler) http.Handler {
 			parts := strings.SplitN(apiKey, ":", 2)
 			if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 				writeAuthError(w, http.StatusUnauthorized, "Invalid x-api-key format. Expected keystring:shared_secret")
+				return
+			}
+
+			// Validate against registered API keys
+			_, errMsg, errStatus := keyStore.Validate(parts[0], parts[1])
+			if errMsg != "" {
+				writeAuthError(w, errStatus, errMsg)
 				return
 			}
 

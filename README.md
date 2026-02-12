@@ -21,10 +21,45 @@ Matches the real Etsy API authentication model:
 
 ### API Key (required for all endpoints)
 
-Every request must include an `x-api-key` header in the format `keystring:shared_secret`:
+Every request must include an `x-api-key` header in the format `keystring:shared_secret`. The mock validates keys against a registry of known credentials:
 
 ```bash
-curl -H "x-api-key: myapp:mysecret" http://localhost:8080/v3/application/shops/5001
+curl -H "x-api-key: test-key:test-secret" http://localhost:8080/v3/application/shops/5001
+```
+
+**Pre-registered API keys:**
+
+| Keystring | Shared Secret | Status | Use Case |
+|-----------|--------------|--------|----------|
+| `test-key` | `test-secret` | ✅ Valid | General testing |
+| `alice-app` | `alice-secret` | ✅ Valid | Multi-app testing |
+| `bob-app` | `bob-secret` | ✅ Valid | Multi-app testing |
+| `banned-app` | `banned-secret` | 🚫 Banned | Test revoked app handling (403) |
+| `expired-app` | `expired-secret` | ⏰ Expired | Test expired key handling (401) |
+
+**Auth error scenarios for testing:**
+
+```bash
+# ✅ Valid credentials → 200
+curl -H "x-api-key: test-key:test-secret" http://localhost:8080/v3/application/listings/active
+
+# ❌ Missing header → 401
+curl http://localhost:8080/v3/application/listings/active
+
+# ❌ Bad format → 401
+curl -H "x-api-key: nocolon" http://localhost:8080/v3/application/listings/active
+
+# ❌ Unknown keystring → 401
+curl -H "x-api-key: unknown:secret" http://localhost:8080/v3/application/listings/active
+
+# ❌ Wrong shared secret → 401
+curl -H "x-api-key: test-key:wrong-secret" http://localhost:8080/v3/application/listings/active
+
+# 🚫 Banned/revoked app → 403
+curl -H "x-api-key: banned-app:banned-secret" http://localhost:8080/v3/application/listings/active
+
+# ⏰ Expired key → 401
+curl -H "x-api-key: expired-app:expired-secret" http://localhost:8080/v3/application/listings/active
 ```
 
 ### OAuth2 (required for protected endpoints)
@@ -45,7 +80,7 @@ curl -X POST http://localhost:8080/v3/public/oauth/token \
 
 **Using a token:**
 ```bash
-curl -H "x-api-key: myapp:mysecret" \
+curl -H "x-api-key: test-key:test-secret" \
      -H "Authorization: Bearer test-token-alice" \
      http://localhost:8080/v3/application/shops/5001/receipts
 ```
