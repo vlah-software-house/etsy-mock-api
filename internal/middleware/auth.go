@@ -175,7 +175,7 @@ func AllScopes() []string {
 func MockAuth(tokenStore *TokenStore, keyStore *APIKeyStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Skip auth for public OAuth endpoints, ping, and admin
+			// Skip auth for public OAuth endpoints, ping, admin, and browser-facing OAuth
 			if strings.HasPrefix(r.URL.Path, "/v3/public/") ||
 				strings.HasPrefix(r.URL.Path, "/admin/") ||
 				strings.HasPrefix(r.URL.Path, "/oauth/") ||
